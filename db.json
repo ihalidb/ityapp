@@ -1,0 +1,153 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "demo",
+      "password": "demo123",
+      "email": "demo@example.com",
+      "phone": "5551234567",
+      "role": "mahalle_baskani"
+    },
+    {
+      "id": "2",
+      "username": "admin",
+      "password": "admin123",
+      "email": "admin@example.com",
+      "phone": "5559876543",
+      "role": "admin"
+    },
+    {
+      "id": "3",
+      "username": "demo2",
+      "password": "demo123",
+      "email": "demo2@example.com",
+      "phone": "5557894561",
+      "role": "meclis_uyesi"
+    }
+  ],
+  "roles": [
+    {
+      "id": "1",
+      "name": "Yönetici",
+      "code": "admin",
+      "order": 6
+    },
+    {
+      "id": "2",
+      "name": "Mahalle Başkanı",
+      "code": "mahalle_baskani",
+      "order": 4
+    },
+    {
+      "id": "3",
+      "name": "Meclis Üyesi",
+      "code": "meclis_uyesi",
+      "order": 3
+    },
+    {
+      "id": "4",
+      "name": "Yönetim Kurulu Üyesi",
+      "code": "yonetim_kurulu_uyesi",
+      "order": 2
+    },
+    {
+      "id": "5",
+      "name": "Yürütme Kurulu Üyesi",
+      "code": "yurutme_kurulu_uyesi",
+      "order": 1
+    },
+    {
+      "id": "6",
+      "name": "İlçe Başkanı",
+      "code": "ilce_baskani",
+      "order": 0
+    },
+    {
+      "id": "7",
+      "name": "Özel Kalem",
+      "code": "ozel_kalem",
+      "order": 5
+    }
+  ],
+  "requests": [
+    {
+      "id": "1",
+      "title": "Örnek Talep",
+      "department": "IT",
+      "description": "Bu bir örnek taleptir",
+      "status": "completed",
+      "userId": 1,
+      "createdAt": "2025-07-20T12:00:00.000Z",
+      "createdTime": "15:00:00",
+      "statusUpdatedAt": "2025-07-20T18:02:17.355Z",
+      "statusUpdatedBy": 2,
+      "statusNote": ""
+    },
+    {
+      "id": "2",
+      "title": "asdasd",
+      "department": "İnsan Kaynakları",
+      "description": "qwdqwdasd",
+      "status": "completed",
+      "userId": 3,
+      "createdAt": "2025-07-20T17:50:41.283Z",
+      "createdTime": "20:50:41",
+      "statusUpdatedAt": "2025-07-20T17:50:48.486Z",
+      "statusUpdatedBy": 2,
+      "statusNote": ""
+    },
+    {
+      "id": "3",
+      "title": "1234123412",
+      "department": "IT",
+      "description": "124143124145145",
+      "status": "rejected",
+      "userId": 1,
+      "createdAt": "2025-07-20T17:54:34.163Z",
+      "createdTime": "20:54:34",
+      "statusUpdatedAt": "2025-07-20T18:02:19.429Z",
+      "statusUpdatedBy": 2,
+      "statusNote": ""
+    },
+    {
+      "id": "4",
+      "title": "dadqwdq",
+      "department": "Muhasebe",
+      "description": "eqweqw4qw4q",
+      "status": "rejected",
+      "userId": 3,
+      "createdAt": "2025-07-20T17:54:46.523Z",
+      "createdTime": "20:54:46",
+      "statusUpdatedAt": "2025-07-20T18:02:21.243Z",
+      "statusUpdatedBy": 2,
+      "statusNote": ""
+    },
+    {
+      "id": "2795",
+      "title": "asdfsdfgdfg",
+      "department": "IT",
+      "description": "rethjygj",
+      "status": "completed",
+      "userId": "1",
+      "createdAt": "2025-07-20T19:05:54.838Z",
+      "createdTime": "22:05:54",
+      "statusUpdatedAt": "2025-07-20T19:06:48.762Z",
+      "statusUpdatedBy": "2",
+      "statusNote": "Fngkffkf"
+    }
+  ],
+  "departments": [
+    {
+      "id": "1",
+      "name": "IT"
+    },
+    {
+      "id": "2",
+      "name": "İnsan Kaynakları"
+    },
+    {
+      "id": "3",
+      "name": "Muhasebe"
+    }
+  ]
+}
