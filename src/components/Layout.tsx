@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const menuIcons = {
@@ -26,8 +26,10 @@ const menuIcons = {
 export const Layout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false); // masaüstü için, başlangıçta kapalı
+  const [plusAnimating, setPlusAnimating] = useState(false);
 
   const menuItems = [
     {
@@ -97,13 +99,13 @@ export const Layout = () => {
             <button
               key={item.label}
               className={`group flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-all justify-start hover:bg-blue-100 hover:text-blue-700 text-gray-700 font-medium text-base shadow-sm
-                ${sidebarOpen ? '' : 'justify-center px-2'}
+                ${(sidebarOpen || drawerOpen) ? '' : 'justify-center px-2'}
               `}
               onClick={() => { navigate(item.to); setDrawerOpen(false); }}
               title={item.label}
             >
               <span className="transition-colors group-hover:text-blue-700">{menuIcons[item.label]}</span>
-              <span className={`truncate transition-all duration-200 ${sidebarOpen ? 'opacity-100 ml-2' : 'opacity-0 w-0 overflow-hidden ml-0'}`}>{item.label}</span>
+              <span className={`truncate transition-all duration-200 ${(sidebarOpen || drawerOpen) ? 'opacity-100 ml-2' : 'opacity-0 w-0 overflow-hidden ml-0'}`}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -143,6 +145,24 @@ export const Layout = () => {
           <Outlet />
         </main>
       </div>
+      {/* Sabit + butonu: sadece giriş yapılmışsa, her ekranda sol altta */}
+      {isAuthenticated && location.pathname !== '/requests/new' && (
+        <button
+          onClick={() => {
+            setPlusAnimating(true);
+            setTimeout(() => {
+              setPlusAnimating(false);
+              navigate('/requests/new');
+            }, 350);
+          }}
+          className={`fixed right-4 bottom-4 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg text-4xl transition-all duration-300
+            ${plusAnimating ? 'scale-125 opacity-0' : 'scale-100 opacity-100'}`}
+          style={{ pointerEvents: plusAnimating ? 'none' : undefined }}
+          title="Yeni Talep Oluştur"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+        </button>
+      )}
     </div>
   );
 }; 
