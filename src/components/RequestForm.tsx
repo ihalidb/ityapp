@@ -1,17 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
 import type { Request, Department } from '../types/index.ts';
 import * as api from '../services/api';
 
@@ -24,7 +14,7 @@ const schema = yup.object().shape({
 type RequestFormData = Omit<Request, 'id' | 'status' | 'userId' | 'createdAt'>;
 
 interface RequestFormProps {
-  onSubmit: (data: RequestFormData) => Promise<void>;
+  onSubmit: (data: RequestFormData) => void;
   initialData?: Partial<RequestFormData>;
 }
 
@@ -49,55 +39,52 @@ export const RequestForm = ({ onSubmit, initialData }: RequestFormProps) => {
         console.error('Failed to fetch departments:', error);
       }
     };
-
     fetchDepartments();
   }, []);
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Talep Formu
-      </Typography>
-      <TextField
-        margin="normal"
-        fullWidth
-        label="Başlık"
-        {...register('title')}
-        error={!!errors.title}
-        helperText={errors.title?.message}
-      />
-      <FormControl fullWidth margin="normal" error={!!errors.department}>
-        <InputLabel>Departman</InputLabel>
-        <Select
-          label="Departman"
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium mb-1">Başlık</label>
+        <input
+          type="text"
+          {...register('title')}
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        {errors.title && <div className="text-xs text-red-600 mt-1">{errors.title.message}</div>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">Departman</label>
+        <select
           {...register('department')}
-          defaultValue=""
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         >
+          <option value="">Departman Seçin</option>
           {departments.map((dept) => (
-            <MenuItem key={dept.id} value={dept.name}>
-              {dept.name}
-            </MenuItem>
+            <option key={dept.id} value={dept.name}>{dept.name}</option>
           ))}
-        </Select>
-      </FormControl>
-      <TextField
-        margin="normal"
-        fullWidth
-        label="Açıklama"
-        multiline
-        rows={4}
-        {...register('description')}
-        error={!!errors.description}
-        helperText={errors.description?.message}
-      />
-      <Button
+        </select>
+        {errors.department && <div className="text-xs text-red-600 mt-1">{errors.department.message}</div>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">Açıklama</label>
+        <textarea
+          {...register('description')}
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={4}
+          required
+        />
+        {errors.description && <div className="text-xs text-red-600 mt-1">{errors.description.message}</div>}
+      </div>
+      <button
         type="submit"
-        variant="contained"
-        sx={{ mt: 3 }}
+        className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
         disabled={isSubmitting}
       >
         {initialData ? 'Güncelle' : 'Oluştur'}
-      </Button>
-    </Box>
+      </button>
+    </form>
   );
 }; 

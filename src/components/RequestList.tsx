@@ -1,23 +1,5 @@
-import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-} from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import React from 'react';
 import type { Request, User } from '../types/index.ts';
-
-const statusColors = {
-  pending: 'warning',
-  'in-progress': 'info',
-  completed: 'success',
-  rejected: 'error',
-} as const;
 
 interface RequestListProps {
   requests: Request[];
@@ -27,57 +9,50 @@ interface RequestListProps {
 export const RequestList = ({ requests, users }: RequestListProps) => {
   const getUserName = (userId: number) => {
     if (!users) return userId.toString();
-    // Debug için kullanıcı listesini ve aranan ID'yi konsola yazdıralım
-    console.log('Users:', users);
-    console.log('Looking for userId:', userId);
     const user = users.find(u => Number(u.id) === Number(userId));
     return user ? user.username : 'Bilinmeyen Kullanıcı';
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Başlık</TableCell>
-            <TableCell>Departman</TableCell>
-            <TableCell>Durum</TableCell>
-            {users && <TableCell>Oluşturan</TableCell>}
-            <TableCell>Tarih</TableCell>
-            <TableCell>Saat</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+    <div className="overflow-x-auto pb-4 rounded shadow bg-white">
+      <table className="w-full sm:min-w-full text-sm">
+        <thead>
+          <tr className="bg-gray-100 text-gray-700">
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">ID</th>
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Başlık</th>
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Departman</th>
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Durum</th>
+            {users && <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Oluşturan</th>}
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Tarih</th>
+            <th className="px-2 sm:px-4 py-2 text-left text-xs sm:text-sm">Saat</th>
+          </tr>
+        </thead>
+        <tbody>
           {requests.map((request) => (
-            <TableRow
-              key={request.id}
-              component={RouterLink}
-              to={`/requests/${request.id}`}
-              sx={{
-                textDecoration: 'none',
-                '&:hover': { backgroundColor: 'action.hover' },
-              }}
-            >
-              <TableCell>{request.id}</TableCell>
-              <TableCell>{request.title}</TableCell>
-              <TableCell>{request.department}</TableCell>
-              <TableCell>
-                <Chip
-                  label={request.status}
-                  color={statusColors[request.status]}
-                  size="small"
-                />
-              </TableCell>
-              {users && <TableCell>{getUserName(request.userId)}</TableCell>}
-              <TableCell>
-                {new Date(request.createdAt).toLocaleDateString('tr-TR')}
-              </TableCell>
-              <TableCell>{request.createdTime}</TableCell>
-            </TableRow>
+            <tr key={request.id} className="hover:bg-blue-50 border-b">
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{request.id}</td>
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{request.title}</td>
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{request.department}</td>
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">
+                <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
+                  request.status === 'completed'
+                    ? 'bg-green-100 text-green-800'
+                    : request.status === 'rejected'
+                    ? 'bg-red-100 text-red-800'
+                    : request.status === 'in-progress'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {request.status}
+                </span>
+              </td>
+              {users && <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{getUserName(request.userId)}</td>}
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{new Date(request.createdAt).toLocaleDateString('tr-TR')}</td>
+              <td className="px-2 sm:px-4 py-2 whitespace-nowrap">{request.createdTime}</td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tbody>
+      </table>
+    </div>
   );
 }; 

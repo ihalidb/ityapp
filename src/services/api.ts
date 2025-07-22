@@ -1,7 +1,9 @@
 import axios from 'axios';
 import type { LoginCredentials, Request, User, Department, Role } from '../types/index.ts';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001'
+  : `http://${window.location.hostname}:3001`;
 
 const api = axios.create({
   baseURL: API_URL,

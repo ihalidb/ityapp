@@ -1,30 +1,4 @@
-import { useEffect, useState } from 'react';
-import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  Alert,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import React, { useEffect, useState } from 'react';
 import type { User, Role } from '../../types/index.ts';
 import * as api from '../../services/api';
 
@@ -36,135 +10,6 @@ interface UserFormData {
   role: string;
 }
 
-interface UserDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: UserFormData) => Promise<void>;
-  initialData?: Partial<UserFormData>;
-  mode: 'create' | 'edit';
-  roles: Role[];
-}
-
-const UserDialog = ({ open, onClose, onSubmit, initialData, mode, roles }: UserDialogProps) => {
-  const [formData, setFormData] = useState<UserFormData>({
-    username: initialData?.username || '',
-    password: '',
-    email: initialData?.email || '',
-    phone: initialData?.phone || '',
-    role: initialData?.role || (roles.length > 0 ? roles[0].code : ''),
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        username: initialData.username || '',
-        password: '',
-        email: initialData.email || '',
-        phone: initialData.phone || '',
-        role: initialData.role || (roles.length > 0 ? roles[0].code : ''),
-      });
-    } else {
-      setFormData({
-        username: '',
-        password: '',
-        email: '',
-        phone: '',
-        role: roles.length > 0 ? roles[0].code : '',
-      });
-    }
-  }, [initialData, roles]);
-
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      if (!formData.username || (!mode || mode === 'create' ? !formData.password : false) || !formData.phone || !formData.role) {
-        throw new Error('Lütfen zorunlu alanları doldurun');
-      }
-
-      await onSubmit(formData);
-      onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>
-          {mode === 'create' ? 'Yeni Kullanıcı Ekle' : 'Kullanıcıyı Düzenle'}
-        </DialogTitle>
-        <DialogContent>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <TextField
-            margin="dense"
-            label="Kullanıcı Adı"
-            fullWidth
-            required
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-          />
-          {mode === 'create' && (
-            <TextField
-              margin="dense"
-              label="Şifre"
-              type="password"
-              fullWidth
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            />
-          )}
-          <TextField
-            margin="dense"
-            label="E-posta"
-            type="email"
-            fullWidth
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Telefon"
-            fullWidth
-            required
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Rol</InputLabel>
-            <Select
-              value={formData.role}
-              label="Rol"
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            >
-              {roles.map((role) => (
-                <MenuItem key={role.id} value={role.code}>
-                  {role.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>İptal</Button>
-          <Button type="submit" variant="contained" disabled={loading}>
-            {mode === 'create' ? 'Ekle' : 'Güncelle'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
 export const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -172,6 +17,8 @@ export const UserManagement = () => {
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState<UserFormData>({ username: '', password: '', email: '', phone: '', role: '' });
+  const [formError, setFormError] = useState('');
 
   const fetchData = async () => {
     try {
@@ -192,31 +39,48 @@ export const UserManagement = () => {
     fetchData();
   }, []);
 
-  const handleCreateUser = async (data: UserFormData) => {
-    await api.createUser(data);
-    fetchData();
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdateUser = async (data: UserFormData) => {
-    if (!selectedUser) return;
-    await api.updateUser(selectedUser.id, data);
-    fetchData();
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    try {
+      if (!formData.username || (!selectedUser && !formData.password) || !formData.phone || !formData.role) {
+        setFormError('Tüm alanlar zorunlu!');
+        return;
+      }
+      if (selectedUser) {
+        await api.updateUser(selectedUser.id, formData);
+      } else {
+        await api.createUser(formData);
+      }
+      setDialogOpen(false);
+      setSelectedUser(null);
+      setFormData({ username: '', password: '', email: '', phone: '', role: roles[0]?.code || '' });
+      fetchData();
+    } catch (err) {
+      setFormError('Kullanıcı kaydedilemedi!');
+    }
   };
 
-  const handleDeleteUser = async (user: User) => {
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setFormData({ username: user.username, password: '', email: user.email || '', phone: user.phone, role: user.role });
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (user: User) => {
     if (user.role === 'admin') {
       alert('Admin kullanıcısı silinemez!');
       return;
     }
-
-    if (!window.confirm(`${user.username} kullanıcısını silmek istediğinize emin misiniz?`)) {
-      return;
-    }
-
+    if (!window.confirm(`${user.username} kullanıcısını silmek istediğinize emin misiniz?`)) return;
     try {
       await api.deleteUser(user.id);
       fetchData();
-    } catch (error) {
+    } catch (err) {
       setError('Kullanıcı silinirken bir hata oluştu');
     }
   };
@@ -227,88 +91,96 @@ export const UserManagement = () => {
   };
 
   if (loading) {
-    return <Typography>Yükleniyor...</Typography>;
+    return <div className="text-center mt-8">Yükleniyor...</div>;
   }
-
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return <div className="text-center text-red-600 mt-8">{error}</div>;
   }
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Kullanıcı Yönetimi</Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setSelectedUser(null);
-            setDialogOpen(true);
-          }}
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Kullanıcı Yönetimi</h2>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick={() => { setSelectedUser(null); setFormData({ username: '', password: '', email: '', phone: '', role: roles[0]?.code || '' }); setDialogOpen(true); }}
         >
           Yeni Kullanıcı
-        </Button>
-      </Box>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Kullanıcı Adı</TableCell>
-              <TableCell>Telefon</TableCell>
-              <TableCell>E-posta</TableCell>
-              <TableCell>Rol</TableCell>
-              <TableCell>İşlemler</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        </button>
+      </div>
+      <div className="overflow-x-auto rounded shadow bg-white">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-gray-100 text-gray-700">
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Kullanıcı Adı</th>
+              <th className="px-4 py-2 text-left">Telefon</th>
+              <th className="px-4 py-2 text-left">E-posta</th>
+              <th className="px-4 py-2 text-left">Rol</th>
+              <th className="px-4 py-2 text-left">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
             {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.email || '-'}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={getRoleName(user.role)}
-                    color={user.role === 'admin' ? 'primary' : 'default'}
-                  />
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setDialogOpen(true);
-                    }}
-                    color="primary"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDeleteUser(user)}
-                    color="error"
-                    disabled={user.role === 'admin'}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+              <tr key={user.id} className="hover:bg-blue-50 border-b">
+                <td className="px-4 py-2">{user.id}</td>
+                <td className="px-4 py-2">{user.username}</td>
+                <td className="px-4 py-2">{user.phone}</td>
+                <td className="px-4 py-2">{user.email || '-'}</td>
+                <td className="px-4 py-2">
+                  <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800'}`}>{getRoleName(user.role)}</span>
+                </td>
+                <td className="px-4 py-2 space-x-2">
+                  <button className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onClick={() => handleEdit(user)}>Düzenle</button>
+                  <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" onClick={() => handleDelete(user)} disabled={user.role === 'admin'}>Sil</button>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <UserDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setSelectedUser(null);
-        }}
-        onSubmit={selectedUser ? handleUpdateUser : handleCreateUser}
-        initialData={selectedUser || undefined}
-        mode={selectedUser ? 'edit' : 'create'}
-        roles={roles}
-      />
-    </Box>
+          </tbody>
+        </table>
+      </div>
+      {/* Kullanıcı Dialogu */}
+      {dialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative animate-fade-in">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => setDialogOpen(false)} aria-label="Kapat">&times;</button>
+            <h2 className="text-lg font-bold mb-4">{selectedUser ? 'Kullanıcıyı Düzenle' : 'Yeni Kullanıcı Ekle'}</h2>
+            {formError && <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm mb-2">{formError}</div>}
+            <form onSubmit={handleFormSubmit} className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Kullanıcı Adı</label>
+                <input type="text" name="username" value={formData.username} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+              </div>
+              {!selectedUser && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Şifre</label>
+                  <input type="password" name="password" value={formData.password} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1">E-posta</label>
+                <input type="email" name="email" value={formData.email} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Telefon</label>
+                <input type="text" name="phone" value={formData.phone} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Rol</label>
+                <select name="role" value={formData.role} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.code}>{role.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button type="button" className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setDialogOpen(false)}>İptal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{selectedUser ? 'Güncelle' : 'Oluştur'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }; 

@@ -1,67 +1,7 @@
-import { useEffect, useState } from 'react';
-import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import type { Request, User } from '../../types/index.ts';
 import * as api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-
-interface StatusUpdateDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: (note: string) => void;
-  action: 'approve' | 'reject' | null;
-}
-
-const StatusUpdateDialog = ({ open, onClose, onConfirm, action }: StatusUpdateDialogProps) => {
-  const [note, setNote] = useState('');
-
-  const handleConfirm = () => {
-    onConfirm(note);
-    setNote('');
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>
-        {action === 'approve' ? 'Talebi Onayla' : 'Talebi Reddet'}
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Not"
-          fullWidth
-          multiline
-          rows={3}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>İptal</Button>
-        <Button onClick={handleConfirm} variant="contained" color={action === 'approve' ? 'success' : 'error'}>
-          {action === 'approve' ? 'Onayla' : 'Reddet'}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 export const RequestManagement = () => {
   const [requests, setRequests] = useState<Request[]>([]);
@@ -70,6 +10,7 @@ export const RequestManagement = () => {
   const [error, setError] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [dialogAction, setDialogAction] = useState<'approve' | 'reject' | null>(null);
+  const [statusNote, setStatusNote] = useState('');
   const { user } = useAuth();
 
   const fetchData = async () => {
@@ -91,21 +32,21 @@ export const RequestManagement = () => {
     fetchData();
   }, []);
 
-  const handleStatusUpdate = async (request: Request, action: 'approve' | 'reject') => {
+  const handleStatusUpdate = (request: Request, action: 'approve' | 'reject') => {
     setSelectedRequest(request);
     setDialogAction(action);
+    setStatusNote('');
   };
 
-  const handleStatusUpdateConfirm = async (note: string) => {
+  const handleStatusUpdateConfirm = async () => {
     if (!selectedRequest || !user || !dialogAction) return;
-
     try {
       const newStatus = dialogAction === 'approve' ? 'completed' : 'rejected';
       await api.updateRequest(selectedRequest.id, {
         status: newStatus,
         statusUpdatedAt: new Date().toISOString(),
         statusUpdatedBy: user.id,
-        statusNote: note,
+        statusNote,
       });
       fetchData();
     } catch (error) {
@@ -113,6 +54,7 @@ export const RequestManagement = () => {
     } finally {
       setSelectedRequest(null);
       setDialogAction(null);
+      setStatusNote('');
     }
   };
 
@@ -122,93 +64,95 @@ export const RequestManagement = () => {
   };
 
   if (loading) {
-    return <Typography>Yükleniyor...</Typography>;
+    return <div className="text-center mt-8">Yükleniyor...</div>;
   }
-
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return <div className="text-center text-red-600 mt-8">{error}</div>;
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Talep Yönetimi
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Başlık</TableCell>
-              <TableCell>Departman</TableCell>
-              <TableCell>Durum</TableCell>
-              <TableCell>Oluşturan</TableCell>
-              <TableCell>Tarih</TableCell>
-              <TableCell>Saat</TableCell>
-              <TableCell>İşlemler</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+    <div className="max-w-6xl mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Talep Yönetimi</h2>
+      <div className="overflow-x-auto rounded shadow bg-white">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-gray-100 text-gray-700">
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Başlık</th>
+              <th className="px-4 py-2 text-left">Departman</th>
+              <th className="px-4 py-2 text-left">Durum</th>
+              <th className="px-4 py-2 text-left">Oluşturan</th>
+              <th className="px-4 py-2 text-left">Tarih</th>
+              <th className="px-4 py-2 text-left">Saat</th>
+              <th className="px-4 py-2 text-left">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
             {requests.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell>{request.id}</TableCell>
-                <TableCell>{request.title}</TableCell>
-                <TableCell>{request.department}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={request.status}
-                    color={
-                      request.status === 'completed'
-                        ? 'success'
-                        : request.status === 'rejected'
-                        ? 'error'
-                        : 'warning'
-                    }
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{getUserName(request.userId)}</TableCell>
-                <TableCell>
-                  {new Date(request.createdAt).toLocaleDateString('tr-TR')}
-                </TableCell>
-                <TableCell>{request.createdTime}</TableCell>
-                <TableCell>
+              <tr key={request.id} className="hover:bg-blue-50 border-b">
+                <td className="px-4 py-2">{request.id}</td>
+                <td className="px-4 py-2">{request.title}</td>
+                <td className="px-4 py-2">{request.department}</td>
+                <td className="px-4 py-2">
+                  <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
+                    request.status === 'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : request.status === 'rejected'
+                      ? 'bg-red-100 text-red-800'
+                      : request.status === 'in-progress'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {request.status}
+                  </span>
+                </td>
+                <td className="px-4 py-2">{getUserName(request.userId)}</td>
+                <td className="px-4 py-2">{new Date(request.createdAt).toLocaleDateString('tr-TR')}</td>
+                <td className="px-4 py-2">{request.createdTime}</td>
+                <td className="px-4 py-2 space-x-2">
                   {request.status === 'pending' && (
-                    <Box>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="success"
+                    <>
+                      <button
+                        className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
                         onClick={() => handleStatusUpdate(request, 'approve')}
-                        sx={{ mr: 1 }}
-                      >
-                        Onayla
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="error"
+                      >Onayla</button>
+                      <button
+                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
                         onClick={() => handleStatusUpdate(request, 'reject')}
-                      >
-                        Reddet
-                      </Button>
-                    </Box>
+                      >Reddet</button>
+                    </>
                   )}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <StatusUpdateDialog
-        open={!!selectedRequest && !!dialogAction}
-        onClose={() => {
-          setSelectedRequest(null);
-          setDialogAction(null);
-        }}
-        onConfirm={handleStatusUpdateConfirm}
-        action={dialogAction}
-      />
-    </Box>
+          </tbody>
+        </table>
+      </div>
+      {/* Durum Güncelleme Dialogu */}
+      {selectedRequest && dialogAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative animate-fade-in">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => { setSelectedRequest(null); setDialogAction(null); }} aria-label="Kapat">&times;</button>
+            <h2 className="text-lg font-bold mb-4">{dialogAction === 'approve' ? 'Talebi Onayla' : 'Talebi Reddet'}</h2>
+            <textarea
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              placeholder="Not"
+              rows={3}
+              value={statusNote}
+              onChange={(e) => setStatusNote(e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setSelectedRequest(null); setDialogAction(null); }} className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">İptal</button>
+              <button
+                onClick={handleStatusUpdateConfirm}
+                className={`px-4 py-2 rounded text-white ${dialogAction === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} transition`}
+              >
+                {dialogAction === 'approve' ? 'Onayla' : 'Reddet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }; 

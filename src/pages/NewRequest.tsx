@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Alert } from '@mui/material';
 import { RequestForm } from '../components/RequestForm';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
@@ -16,13 +15,11 @@ export const NewRequest = () => {
       if (!user) {
         throw new Error('Kullanıcı oturumu bulunamadı');
       }
-
       await api.createRequest({
         ...data,
         status: 'pending',
         userId: user.id,
       });
-
       navigate('/');
     } catch (err) {
       setError('Talep oluşturulurken bir hata oluştu');
@@ -30,16 +27,10 @@ export const NewRequest = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Yeni Talep Oluştur
-      </Typography>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+    <div className="max-w-lg mx-auto bg-white p-6 rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">Yeni Talep Oluştur</h2>
+      {error && <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm mb-2">{error}</div>}
       <RequestForm onSubmit={handleSubmit} />
-    </Box>
+    </div>
   );
 }; 

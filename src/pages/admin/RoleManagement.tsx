@@ -1,27 +1,4 @@
-import { useEffect, useState } from 'react';
-import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  IconButton,
-  Alert,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import React, { useEffect, useState } from 'react';
 import type { Role } from '../../types/index.ts';
 import * as api from '../../services/api';
 
@@ -30,106 +7,14 @@ interface RoleFormData {
   code: string;
 }
 
-interface RoleDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: RoleFormData) => Promise<void>;
-  initialData?: Partial<RoleFormData>;
-  mode: 'create' | 'edit';
-}
-
-const RoleDialog = ({ open, onClose, onSubmit, initialData, mode }: RoleDialogProps) => {
-  const [formData, setFormData] = useState<RoleFormData>({
-    name: initialData?.name || '',
-    code: initialData?.code || '',
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        name: initialData.name || '',
-        code: initialData.code || '',
-      });
-    } else {
-      setFormData({
-        name: '',
-        code: '',
-      });
-    }
-  }, [initialData]);
-
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      if (!formData.name || !formData.code) {
-        throw new Error('Lütfen tüm alanları doldurun');
-      }
-
-      // Kod formatını kontrol et
-      const codeRegex = /^[a-z_]+$/;
-      if (!codeRegex.test(formData.code)) {
-        throw new Error('Rol kodu sadece küçük harf ve alt çizgi içerebilir');
-      }
-
-      await onSubmit(formData);
-      onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>
-          {mode === 'create' ? 'Yeni Rol Ekle' : 'Rolü Düzenle'}
-        </DialogTitle>
-        <DialogContent>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <TextField
-            margin="dense"
-            label="Rol Adı"
-            fullWidth
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            helperText="Örnek: Mahalle Başkanı"
-          />
-          <TextField
-            margin="dense"
-            label="Rol Kodu"
-            fullWidth
-            required
-            value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase() })}
-            helperText="Örnek: mahalle_baskani (sadece küçük harf ve alt çizgi kullanın)"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>İptal</Button>
-          <Button type="submit" variant="contained" disabled={loading}>
-            {mode === 'create' ? 'Ekle' : 'Güncelle'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-};
-
 export const RoleManagement = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [formData, setFormData] = useState<RoleFormData>({ name: '', code: '' });
+  const [formError, setFormError] = useState('');
 
   const fetchRoles = async () => {
     try {
@@ -146,161 +31,121 @@ export const RoleManagement = () => {
     fetchRoles();
   }, []);
 
-  const handleCreateRole = async (data: RoleFormData) => {
-    const maxOrder = Math.max(...roles.map(r => r.order), -1);
-    await api.createRole({
-      ...data,
-      order: maxOrder + 1,
-    });
-    fetchRoles();
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdateRole = async (data: RoleFormData) => {
-    if (!selectedRole) return;
-    await api.updateRole(selectedRole.id, data);
-    fetchRoles();
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError('');
+    try {
+      if (!formData.name || !formData.code) {
+        setFormError('Tüm alanlar zorunlu!');
+        return;
+      }
+      if (selectedRole) {
+        await api.updateRole(selectedRole.id, formData);
+      } else {
+        const maxOrder = Math.max(...roles.map(r => r.order), -1);
+        await api.createRole({ ...formData, order: maxOrder + 1 });
+      }
+      setDialogOpen(false);
+      setSelectedRole(null);
+      setFormData({ name: '', code: '' });
+      fetchRoles();
+    } catch (err) {
+      setFormError('Rol kaydedilemedi!');
+    }
   };
 
-  const handleDeleteRole = async (role: Role) => {
+  const handleEdit = (role: Role) => {
+    setSelectedRole(role);
+    setFormData({ name: role.name, code: role.code });
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (role: Role) => {
     if (role.code === 'admin') {
       alert('Admin rolü silinemez!');
       return;
     }
-
-    if (!window.confirm(`${role.name} rolünü silmek istediğinize emin misiniz?`)) {
-      return;
-    }
-
+    if (!window.confirm(`${role.name} rolünü silmek istediğinize emin misiniz?`)) return;
     try {
       await api.deleteRole(role.id);
       fetchRoles();
-    } catch (error) {
+    } catch (err) {
       setError('Rol silinirken bir hata oluştu');
     }
   };
 
-  const handleDragEnd = async (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(roles);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setRoles(items);
-
-    try {
-      await api.updateRoleOrder(items);
-    } catch (error) {
-      setError('Rol sırası güncellenirken bir hata oluştu');
-      fetchRoles(); // Hata durumunda orijinal sıralamayı geri yükle
-    }
-  };
-
   if (loading) {
-    return <Typography>Yükleniyor...</Typography>;
+    return <div className="text-center mt-8">Yükleniyor...</div>;
   }
-
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return <div className="text-center text-red-600 mt-8">{error}</div>;
   }
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Rol Yönetimi</Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setSelectedRole(null);
-            setDialogOpen(true);
-          }}
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Rol Yönetimi</h2>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick={() => { setSelectedRole(null); setFormData({ name: '', code: '' }); setDialogOpen(true); }}
         >
           Yeni Rol
-        </Button>
-      </Box>
-
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell width={50}></TableCell>
-                <TableCell>ID</TableCell>
-                <TableCell>Rol Adı</TableCell>
-                <TableCell>Rol Kodu</TableCell>
-                <TableCell>İşlemler</TableCell>
-              </TableRow>
-            </TableHead>
-            <Droppable droppableId="roles">
-              {(provided) => (
-                <TableBody {...provided.droppableProps} ref={provided.innerRef}>
-                  {roles.map((role, index) => (
-                    <Draggable
-                      key={role.id}
-                      draggableId={role.id.toString()}
-                      index={index}
-                      isDragDisabled={role.code === 'admin'}
-                    >
-                      {(provided, snapshot) => (
-                        <TableRow
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          sx={{
-                            backgroundColor: snapshot.isDragging ? 'action.hover' : 'inherit',
-                          }}
-                        >
-                          <TableCell {...provided.dragHandleProps}>
-                            <DragIndicatorIcon
-                              sx={{
-                                cursor: role.code === 'admin' ? 'not-allowed' : 'grab',
-                                color: role.code === 'admin' ? 'action.disabled' : 'action.active',
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>{role.id}</TableCell>
-                          <TableCell>{role.name}</TableCell>
-                          <TableCell>{role.code}</TableCell>
-                          <TableCell>
-                            <IconButton
-                              onClick={() => {
-                                setSelectedRole(role);
-                                setDialogOpen(true);
-                              }}
-                              color="primary"
-                              disabled={role.code === 'admin'}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => handleDeleteRole(role)}
-                              color="error"
-                              disabled={role.code === 'admin'}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </TableBody>
-              )}
-            </Droppable>
-          </Table>
-        </TableContainer>
-      </DragDropContext>
-
-      <RoleDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setSelectedRole(null);
-        }}
-        onSubmit={selectedRole ? handleUpdateRole : handleCreateRole}
-        initialData={selectedRole || undefined}
-        mode={selectedRole ? 'edit' : 'create'}
-      />
-    </Box>
+        </button>
+      </div>
+      <div className="overflow-x-auto rounded shadow bg-white">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-gray-100 text-gray-700">
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Rol Adı</th>
+              <th className="px-4 py-2 text-left">Rol Kodu</th>
+              <th className="px-4 py-2 text-left">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {roles.map((role) => (
+              <tr key={role.id} className="hover:bg-blue-50 border-b">
+                <td className="px-4 py-2">{role.id}</td>
+                <td className="px-4 py-2">{role.name}</td>
+                <td className="px-4 py-2">{role.code}</td>
+                <td className="px-4 py-2 space-x-2">
+                  <button className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onClick={() => handleEdit(role)}>Düzenle</button>
+                  <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" onClick={() => handleDelete(role)} disabled={role.code === 'admin'}>Sil</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Rol Dialogu */}
+      {dialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative animate-fade-in">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl" onClick={() => setDialogOpen(false)} aria-label="Kapat">&times;</button>
+            <h2 className="text-lg font-bold mb-4">{selectedRole ? 'Rolü Düzenle' : 'Yeni Rol Ekle'}</h2>
+            {formError && <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm mb-2">{formError}</div>}
+            <form onSubmit={handleFormSubmit} className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Rol Adı</label>
+                <input type="text" name="name" value={formData.name} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Rol Kodu</label>
+                <input type="text" name="code" value={formData.code} onChange={handleFormChange} className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <div className="text-xs text-gray-500 mt-1">Örnek: mahalle_baskani (sadece küçük harf ve alt çizgi kullanın)</div>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button type="button" className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setDialogOpen(false)}>İptal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{selectedRole ? 'Güncelle' : 'Oluştur'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }; 

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import type { Request, User } from '../types/index.ts';
 import * as api from '../services/api';
 import { RequestList } from '../components/RequestList';
@@ -16,21 +15,12 @@ export const Dashboard = () => {
     const fetchData = async () => {
       try {
         if (!user) return;
-        
-        // Debug için user.id'yi yazdıralım
-        console.log('Current user ID:', user.id, typeof user.id);
-        
         const [requestsData, usersData] = await Promise.all([
           user.role === 'admin' 
             ? api.getRequests()
             : api.getUserRequests(Number(user.id)),
           api.getUsers()
         ]);
-        
-        // Debug için gelen verileri yazdıralım
-        console.log('Requests:', requestsData);
-        console.log('Users:', usersData);
-        
         setRequests(requestsData);
         setUsers(usersData);
       } catch (error) {
@@ -39,38 +29,31 @@ export const Dashboard = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [user]);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={4}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center mt-8">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Typography color="error" align="center" mt={4}>
-        {error}
-      </Typography>
+      <div className="text-center text-red-600 mt-8">{error}</div>
     );
   }
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        {user?.role === 'admin' ? 'Tüm Talepler' : 'Taleplerim'}
-      </Typography>
+    <div>
+      <h2 className="text-2xl font-bold mb-4">{user?.role === 'admin' ? 'Tüm Talepler' : 'Taleplerim'}</h2>
       {requests.length === 0 ? (
-        <Typography align="center" mt={4}>
-          Henüz talep bulunmamaktadır.
-        </Typography>
+        <div className="text-center text-gray-500 mt-8">Henüz talep bulunmamaktadır.</div>
       ) : (
         <RequestList requests={requests} users={user?.role === 'admin' ? users : undefined} />
       )}
-    </Box>
+    </div>
   );
 }; 
