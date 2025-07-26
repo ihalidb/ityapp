@@ -31,49 +31,115 @@
       "name": "Yönetici",
       "code": "admin",
       "order": 6,
-      "allowedPages": ["dashboard", "my-requests", "new-request", "admin/users", "admin/roles", "admin/requests"]
+      "allowedPages": [
+        "dashboard",
+        "my-requests",
+        "new-request",
+        "organization",
+        "admin/request-management",
+        "admin/users",
+        "admin/roles",
+        "admin/organization"
+      ]
     },
     {
       "id": "2",
       "name": "Mahalle Başkanı",
       "code": "mahalle_baskani",
       "order": 4,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "my-requests",
+        "new-request",
+        "organization"
+      ]
     },
     {
       "id": "3",
       "name": "Meclis Üyesi",
       "code": "meclis_uyesi",
       "order": 1,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "my-requests",
+        "new-request",
+        "organization"
+      ]
     },
     {
       "id": "4",
       "name": "Yönetim Kurulu Üyesi",
       "code": "yonetim_kurulu_uyesi",
       "order": 3,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "my-requests",
+        "new-request",
+        "organization"
+      ]
     },
     {
       "id": "5",
       "name": "Yürütme Kurulu Üyesi",
       "code": "yurutme_kurulu_uyesi",
       "order": 5,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "my-requests",
+        "new-request",
+        "dashboard",
+        "organization"
+      ]
     },
     {
       "id": "6",
       "name": "İlçe Başkanı",
       "code": "ilce_baskani",
       "order": 0,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "dashboard",
+        "my-requests",
+        "new-request",
+        "organization"
+      ]
     },
     {
       "id": "7",
       "name": "Özel Kalem",
       "code": "ozel_kalem",
       "order": 2,
-      "allowedPages": ["dashboard", "my-requests", "new-request"]
+      "allowedPages": [
+        "dashboard",
+        "my-requests",
+        "new-request",
+        "organization"
+      ]
+    }
+  ],
+  "organizations": [
+    {
+      "name": "Fatma Demir",
+      "position": "Meclis Üyesi",
+      "photo": "",
+      "order": 2,
+      "id": "2"
+    },
+    {
+      "name": "Mehmet Kaya",
+      "position": "Yönetim Kurulu Üyesi",
+      "photo": "",
+      "order": 3,
+      "id": "3"
+    },
+    {
+      "name": "Ayşe Özkan",
+      "position": "Mahalle Başkanı",
+      "photo": "",
+      "order": 4,
+      "id": "4"
+    },
+    {
+      "id": "a001",
+      "name": "Fatih Karaismailoğlu",
+      "position": "İlçe Başkanı",
+      "photo": "",
+      "order": 1
     }
   ],
   "requests": [
@@ -81,53 +147,79 @@
       "id": "1",
       "title": "Örnek Talep",
       "department": "IT",
-      "description": "Bu bir örnek taleptir",
+      "description": "Bu bir örnek talep açıklamasıdır.",
       "status": "completed",
       "userId": 1,
-      "createdAt": "2025-07-20T12:00:00.000Z",
+      "createdAt": "2025-07-20T15:00:00.000Z",
       "createdTime": "15:00:00",
-      "statusUpdatedAt": "2025-07-20T18:02:17.355Z",
-      "statusUpdatedBy": 2,
-      "statusNote": ""
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
     },
     {
       "id": "2",
       "title": "asdasd",
       "department": "İnsan Kaynakları",
-      "description": "qwdqwdasd",
+      "description": "asdasd",
       "status": "completed",
       "userId": 3,
-      "createdAt": "2025-07-20T17:50:41.283Z",
+      "createdAt": "2025-07-20T20:50:41.000Z",
       "createdTime": "20:50:41",
-      "statusUpdatedAt": "2025-07-20T17:50:48.486Z",
-      "statusUpdatedBy": 2,
-      "statusNote": ""
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
     },
     {
       "id": "3",
       "title": "1234123412",
       "department": "IT",
-      "description": "124143124145145",
+      "description": "1234123412",
       "status": "rejected",
       "userId": 1,
-      "createdAt": "2025-07-20T17:54:34.163Z",
+      "createdAt": "2025-07-20T20:54:34.000Z",
       "createdTime": "20:54:34",
-      "statusUpdatedAt": "2025-07-20T18:02:19.429Z",
-      "statusUpdatedBy": 2,
-      "statusNote": ""
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
     },
     {
       "id": "4",
       "title": "dadqwdq",
       "department": "Muhasebe",
-      "description": "eqweqw4qw4q",
+      "description": "dadqwdq",
       "status": "rejected",
       "userId": 3,
-      "createdAt": "2025-07-20T17:54:46.523Z",
+      "createdAt": "2025-07-20T20:54:46.000Z",
       "createdTime": "20:54:46",
-      "statusUpdatedAt": "2025-07-20T18:02:21.243Z",
-      "statusUpdatedBy": 2,
-      "statusNote": ""
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
+    },
+    {
+      "id": "cf3f",
+      "title": "Teşkilat yönetim sistemi iyileştirmeleri yapılması",
+      "department": "İnsan Kaynakları",
+      "description": "Teşkilat yönetim sistemi iyileştirmeleri yapılması",
+      "status": "completed",
+      "userId": 2,
+      "createdAt": "2025-07-26T10:56:02.000Z",
+      "createdTime": "10:56:02",
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
+    },
+    {
+      "id": "392e",
+      "title": "deneme talebi ",
+      "department": "IT",
+      "description": "s.a.",
+      "status": "pending",
+      "userId": "2",
+      "createdAt": "2025-07-26T18:47:36.209Z",
+      "createdTime": "21:47:36",
+      "statusUpdatedAt": null,
+      "statusUpdatedBy": null,
+      "statusNote": null
     }
   ],
   "departments": [
@@ -142,6 +234,18 @@
     {
       "id": "3",
       "name": "Muhasebe"
+    },
+    {
+      "id": "4",
+      "name": "Pazarlama"
+    },
+    {
+      "id": "5",
+      "name": "Satış"
+    },
+    {
+      "id": "6",
+      "name": "Müşteri Hizmetleri"
     }
   ]
 }

@@ -1,3 +1,103 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* Mobile background fix */
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #F49B00;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  background-color: #F49B00;
+}
+
+/* Prevent horizontal scroll on mobile */
+* {
+  box-sizing: border-box;
+}
+
+/* Modern Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(244, 244, 244, 0.8);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 72, 142, 0.6);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 72, 142, 0.8);
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(244, 244, 244, 0.8);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 72, 142, 0.6) rgba(244, 244, 244, 0.8);
+}
+
+/* Mobile specific scrollbar */
+@media screen and (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 72, 142, 0.7);
+    border-radius: 8px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 72, 142, 0.9);
+  }
+  
+  /* Show scrollbar only when needed */
+  .overflow-x-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 72, 142, 0.7) transparent;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: rgba(0, 72, 142, 0.7);
+    border-radius: 8px;
+  }
+}
+
+/* Ensure proper mobile viewport */
+@media screen and (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+              body {
+              background-color: #F49B00 !important;
+            }
+} 
