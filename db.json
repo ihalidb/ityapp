@@ -30,43 +30,50 @@
       "id": "1",
       "name": "Yönetici",
       "code": "admin",
-      "order": 6
+      "order": 6,
+      "allowedPages": ["dashboard", "my-requests", "new-request", "admin/users", "admin/roles", "admin/requests"]
     },
     {
       "id": "2",
       "name": "Mahalle Başkanı",
       "code": "mahalle_baskani",
-      "order": 4
+      "order": 4,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     },
     {
       "id": "3",
       "name": "Meclis Üyesi",
       "code": "meclis_uyesi",
-      "order": 1
+      "order": 1,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     },
     {
       "id": "4",
       "name": "Yönetim Kurulu Üyesi",
       "code": "yonetim_kurulu_uyesi",
-      "order": 3
+      "order": 3,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     },
     {
       "id": "5",
       "name": "Yürütme Kurulu Üyesi",
       "code": "yurutme_kurulu_uyesi",
-      "order": 5
+      "order": 5,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     },
     {
       "id": "6",
       "name": "İlçe Başkanı",
       "code": "ilce_baskani",
-      "order": 0
+      "order": 0,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     },
     {
       "id": "7",
       "name": "Özel Kalem",
       "code": "ozel_kalem",
-      "order": 2
+      "order": 2,
+      "allowedPages": ["dashboard", "my-requests", "new-request"]
     }
   ],
   "requests": [

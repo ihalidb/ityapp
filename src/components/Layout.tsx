@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { PAGE_DEFINITIONS, PageKey } from '../types/index';
 
 const menuIcons = {
   'Yeni Talep': (
@@ -12,8 +13,11 @@ const menuIcons = {
   'Kullanıcılar': (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m0 0A4 4 0 1116 9a4 4 0 01-7 3.13z" /></svg>
   ),
-  'Roller': (
+  'Rol Yönetimi': (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" /></svg>
+  ),
+  'Talep Yönetimi': (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5V6a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 6v1.5M3 7.5v9A2.25 2.25 0 005.25 18.75h13.5A2.25 2.25 0 0021 16.5v-9M3 7.5h18" /></svg>
   ),
   'Tüm Talepler': (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5V6a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 6v1.5M3 7.5v9A2.25 2.25 0 005.25 18.75h13.5A2.25 2.25 0 0021 16.5v-9M3 7.5h18" /></svg>
@@ -31,33 +35,9 @@ export const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // masaüstü için, başlangıçta kapalı
   const [plusAnimating, setPlusAnimating] = useState(false);
 
-  const menuItems = [
-    {
-      label: 'Yeni Talep',
-      to: '/requests/new',
-      show: isAuthenticated,
-    },
-    {
-      label: 'Kendi Taleplerim',
-      to: '/my-requests',
-      show: isAuthenticated && user?.role !== 'admin',
-    },
-    {
-      label: 'Kullanıcılar',
-      to: '/admin/users',
-      show: isAuthenticated && user?.role === 'admin',
-    },
-    {
-      label: 'Roller',
-      to: '/admin/roles',
-      show: isAuthenticated && user?.role === 'admin',
-    },
-    {
-      label: 'Tüm Talepler',
-      to: '/admin/requests',
-      show: isAuthenticated && user?.role === 'admin',
-    },
-  ];
+  // Kullanıcının rolünün allowedPages'ine göre menü oluştur
+  const allowedPages: PageKey[] = (user as any)?.role && (user as any)?.allowedPages ? (user as any).allowedPages : [];
+  const menuItems = PAGE_DEFINITIONS.filter(page => allowedPages.includes(page.key));
 
   return (
     <div className="flex min-h-screen h-full w-full bg-gradient-to-br from-gray-50 to-gray-100">
@@ -95,16 +75,16 @@ export const Layout = () => {
           </button>
         </div>
         <div className="flex flex-col gap-1 mt-4 px-2">
-          {menuItems.filter(item => item.show).map(item => (
+          {menuItems.map(item => (
             <button
-              key={item.label}
+              key={item.key}
               className={`group flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-all justify-start hover:bg-blue-100 hover:text-blue-700 text-gray-700 font-medium text-base shadow-sm
                 ${(sidebarOpen || drawerOpen) ? '' : 'justify-center px-2'}
               `}
-              onClick={() => { navigate(item.to); setDrawerOpen(false); }}
+              onClick={() => { navigate(item.path); setDrawerOpen(false); }}
               title={item.label}
             >
-              <span className="transition-colors group-hover:text-blue-700">{menuIcons[item.label]}</span>
+              <span className="transition-colors group-hover:text-blue-700">{menuIcons[item.label] || menuIcons['Tüm Talepler']}</span>
               <span className={`truncate transition-all duration-200 ${(sidebarOpen || drawerOpen) ? 'opacity-100 ml-2' : 'opacity-0 w-0 overflow-hidden ml-0'}`}>{item.label}</span>
             </button>
           ))}

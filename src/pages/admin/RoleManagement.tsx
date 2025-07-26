@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import type { Role } from '../../types/index.ts';
+import type { Role, PageKey } from '../../types/index.ts';
+import { PAGE_DEFINITIONS } from '../../types/index.ts';
 import * as api from '../../services/api';
 
 interface RoleFormData {
@@ -47,7 +48,7 @@ export const RoleManagement = () => {
         await api.updateRole(selectedRole.id, formData);
       } else {
         const maxOrder = Math.max(...roles.map(r => r.order), -1);
-        await api.createRole({ ...formData, order: maxOrder + 1 });
+        await api.createRole({ ...formData, order: maxOrder + 1, allowedPages: [] });
       }
       setDialogOpen(false);
       setSelectedRole(null);
@@ -78,6 +79,15 @@ export const RoleManagement = () => {
     }
   };
 
+  // Yetki checkbox'ı değişince
+  const handlePagePermissionChange = async (role: Role, page: PageKey, checked: boolean) => {
+    const newAllowedPages = checked
+      ? Array.from(new Set([...(role.allowedPages || []), page]))
+      : (role.allowedPages || []).filter(p => p !== page);
+    await api.updateRole(role.id, { allowedPages: newAllowedPages });
+    setRoles(roles => roles.map(r => r.id === role.id ? { ...r, allowedPages: newAllowedPages } : r));
+  };
+
   if (loading) {
     return <div className="text-center mt-8">Yükleniyor...</div>;
   }
@@ -86,9 +96,9 @@ export const RoleManagement = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Rol Yönetimi</h2>
+        <h2 className="text-2xl font-bold">Rol Yönetim ve Yetkilendirme</h2>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           onClick={() => { setSelectedRole(null); setFormData({ name: '', code: '' }); setDialogOpen(true); }}
@@ -103,6 +113,9 @@ export const RoleManagement = () => {
               <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Rol Adı</th>
               <th className="px-4 py-2 text-left">Rol Kodu</th>
+              {PAGE_DEFINITIONS.map(page => (
+                <th key={page.key} className="px-4 py-2 text-center whitespace-nowrap">{page.label}</th>
+              ))}
               <th className="px-4 py-2 text-left">İşlemler</th>
             </tr>
           </thead>
@@ -112,6 +125,17 @@ export const RoleManagement = () => {
                 <td className="px-4 py-2">{role.id}</td>
                 <td className="px-4 py-2">{role.name}</td>
                 <td className="px-4 py-2">{role.code}</td>
+                {PAGE_DEFINITIONS.map(page => (
+                  <td key={page.key} className="px-4 py-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={role.allowedPages?.includes(page.key) || false}
+                      onChange={e => handlePagePermissionChange(role, page.key as PageKey, e.target.checked)}
+                      className="w-5 h-5 accent-blue-600"
+                      disabled={role.code === 'admin' && page.key === 'admin/roles'}
+                    />
+                  </td>
+                ))}
                 <td className="px-4 py-2 space-x-2">
                   <button className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onClick={() => handleEdit(role)}>Düzenle</button>
                   <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" onClick={() => handleDelete(role)} disabled={role.code === 'admin'}>Sil</button>

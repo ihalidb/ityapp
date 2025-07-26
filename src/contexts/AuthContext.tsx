@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { User, LoginCredentials, AuthContextType } from '../types/index.ts';
 import * as api from '../services/api';
@@ -14,8 +14,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (credentials: LoginCredentials) => {
     try {
       const user = await api.login(credentials);
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Kullanıcının rolüne göre allowedPages'i ekle
+      const roles = await api.getRoles();
+      const matchedRole = roles.find(r => r.code === user.role);
+      const userWithAllowedPages = matchedRole
+        ? { ...user, allowedPages: matchedRole.allowedPages }
+        : user;
+      setUser(userWithAllowedPages);
+      localStorage.setItem('user', JSON.stringify(userWithAllowedPages));
     } catch (error) {
       throw new Error('Login failed');
     }
