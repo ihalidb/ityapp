@@ -36,6 +36,9 @@
         "my-requests",
         "new-request",
         "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report",
         "admin/request-management",
         "admin/users",
         "admin/roles",
@@ -50,7 +53,10 @@
       "allowedPages": [
         "my-requests",
         "new-request",
-        "organization"
+        "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report"
       ]
     },
     {
@@ -61,7 +67,10 @@
       "allowedPages": [
         "my-requests",
         "new-request",
-        "organization"
+        "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report"
       ]
     },
     {
@@ -72,7 +81,10 @@
       "allowedPages": [
         "my-requests",
         "new-request",
-        "organization"
+        "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report"
       ]
     },
     {
@@ -84,7 +96,10 @@
         "my-requests",
         "new-request",
         "dashboard",
-        "organization"
+        "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report"
       ]
     },
     {
@@ -96,7 +111,10 @@
         "dashboard",
         "my-requests",
         "new-request",
-        "organization"
+        "organization",
+        "secretariat",
+        "attendance",
+        "attendance-report"
       ]
     },
     {
@@ -108,7 +126,9 @@
         "dashboard",
         "my-requests",
         "new-request",
-        "organization"
+        "organization",
+        "attendance",
+        "attendance-report"
       ]
     }
   ],

@@ -54,6 +54,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
+    'secretariat': (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+    'attendance': (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    'attendance-report': (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
     'admin/organization': (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
@@ -83,6 +98,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const managementItems = filteredMenuItems.filter(item => item.group === 'management');
   const regularItems = filteredMenuItems.filter(item => !item.group);
+  
+  // Sekreterya ve attendance öncesi ve sonrası öğeleri ayır
+  const itemsBeforeSecretariat = regularItems.filter(item => !['secretariat', 'attendance', 'attendance-report'].includes(item.key));
+  const secretariatItem = regularItems.find(item => item.key === 'secretariat');
+  const attendanceItem = regularItems.find(item => item.key === 'attendance');
+  const attendanceReportItem = regularItems.find(item => item.key === 'attendance-report');
 
   return (
     <div className="min-h-screen w-full bg-[#F49B00] flex overflow-x-hidden">
@@ -101,8 +122,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         } lg:fixed lg:${sidebarOpen ? 'w-64' : 'w-16'}`}
       >
         {/* Logo Section */}
-        <div className={`flex items-center h-16 px-4 flex-shrink-0 ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
-          <div className={`flex items-center space-x-2 transition-all duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}>
+        <div className={`flex items-center h-16 px-4 flex-shrink-0 ${sidebarOpen ? 'justify-between' : 'justify-center lg:justify-center'}`}>
+          <div className={`flex items-center space-x-2 transition-all duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
             <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-[#00488E] text-lg font-bold">İ</span>
             </div>
@@ -130,8 +151,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Navigation */}
         <nav className="mt-6 px-4 flex-1 overflow-y-auto">
           <div className="space-y-2">
-            {/* Regular menu items */}
-            {regularItems.map((item) => (
+            {/* Regular menu items before secretariat */}
+            {itemsBeforeSecretariat.map((item) => (
               <button
                 key={item.key}
                 onClick={() => {
@@ -145,11 +166,76 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title={sidebarOpen ? '' : item.label}
               >
                 <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
-                  <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0`}>{menuIcons[item.key]}</span>
-                  <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}>{item.label}</span>
+                  <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons[item.key]}</span>
+                  <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{item.label}</span>
                 </div>
               </button>
             ))}
+
+            {/* Visual separator above secretariat */}
+            {secretariatItem && (
+              <div className={`h-px bg-[#003366] my-6 transition-all duration-300 ${sidebarOpen ? 'mx-4' : 'mx-2'}`}></div>
+            )}
+
+            {/* Secretariat item */}
+            {secretariatItem && (
+              <button
+                onClick={() => {
+                  navigate(secretariatItem.path);
+                }}
+                className={`w-full flex items-center justify-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  location.pathname === secretariatItem.path
+                    ? 'bg-[#F49B00] text-white shadow-lg rounded-l-xl rounded-r-none -mr-4 w-[calc(100%+2rem)]'
+                    : 'text-gray-300 hover:bg-[#003366] hover:text-white rounded-xl'
+                }`}
+                title={sidebarOpen ? '' : secretariatItem.label}
+              >
+                <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
+                  <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons[secretariatItem.key]}</span>
+                  <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{secretariatItem.label}</span>
+                </div>
+              </button>
+            )}
+
+            {/* Attendance item */}
+            {attendanceItem && (
+              <button
+                onClick={() => {
+                  navigate(attendanceItem.path);
+                }}
+                className={`w-full flex items-center justify-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  location.pathname === attendanceItem.path
+                    ? 'bg-[#F49B00] text-white shadow-lg rounded-l-xl rounded-r-none -mr-4 w-[calc(100%+2rem)]'
+                    : 'text-gray-300 hover:bg-[#003366] hover:text-white rounded-xl'
+                }`}
+                title={sidebarOpen ? '' : attendanceItem.label}
+              >
+                <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
+                  <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons[attendanceItem.key]}</span>
+                  <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{attendanceItem.label}</span>
+                </div>
+              </button>
+            )}
+
+            {/* Attendance Report item */}
+            {attendanceReportItem && (
+              <button
+                onClick={() => {
+                  navigate(attendanceReportItem.path);
+                }}
+                className={`w-full flex items-center justify-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  location.pathname === attendanceReportItem.path
+                    ? 'bg-[#F49B00] text-white shadow-lg rounded-l-xl rounded-r-none -mr-4 w-[calc(100%+2rem)]'
+                    : 'text-gray-300 hover:bg-[#003366] hover:text-white rounded-xl'
+                }`}
+                title={sidebarOpen ? '' : attendanceReportItem.label}
+              >
+                <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
+                  <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons[attendanceReportItem.key]}</span>
+                  <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{attendanceReportItem.label}</span>
+                </div>
+              </button>
+            )}
 
             {/* Visual separator above management */}
             {managementItems.length > 0 && (
@@ -168,8 +254,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <div className={`flex items-center ${sidebarOpen ? 'w-full justify-between' : 'justify-center'}`}>
                     <div className="flex items-center">
-                      <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0`}>{menuIcons['management']}</span>
-                      <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}>Yönetim</span>
+                      <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons['management']}</span>
+                      <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>Yönetim</span>
                     </div>
                     <svg 
                       className={`w-4 h-4 transition-transform flex-shrink-0 ${managementOpen ? 'rotate-180' : ''} ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}
@@ -198,8 +284,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                           title={sidebarOpen ? '' : item.label}
                         >
                           <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
-                            <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0`}>{menuIcons[item.key]}</span>
-                            <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}>{item.label}</span>
+                            <span className={`${sidebarOpen ? 'mr-3' : ''} flex-shrink-0 text-white`}>{menuIcons[item.key]}</span>
+                            <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>{item.label}</span>
                           </div>
                         </button>
                     ))}
@@ -219,12 +305,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             className="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-300 hover:bg-[#003366] hover:text-white rounded-xl transition-all duration-200"
             title="Çıkış Yap"
           >
-            <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
-              <svg className={`w-5 h-5 flex-shrink-0 ${sidebarOpen ? 'mr-2' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0 lg:hidden'}`}>Çıkış Yap</span>
-            </div>
+                          <div className={`flex items-center ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
+                <svg className={`w-5 h-5 flex-shrink-0 ${sidebarOpen ? 'mr-2' : ''} text-white`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className={`transition-all duration-300 whitespace-nowrap ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>Çıkış Yap</span>
+              </div>
           </button>
           
 

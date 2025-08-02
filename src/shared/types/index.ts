@@ -43,6 +43,9 @@ export type PageKey =
   | 'my-requests'
   | 'new-request'
   | 'organization'
+  | 'secretariat'
+  | 'attendance'
+  | 'attendance-report'
   | 'admin/request-management'
   | 'admin/organization'
   | 'admin/users'
@@ -52,8 +55,11 @@ export const PAGE_DEFINITIONS: { key: PageKey; label: string; path: string; grou
   { key: 'new-request', label: 'Yeni Talep Aç', path: '/new-request' },
   { key: 'my-requests', label: 'Taleplerim', path: '/my-requests' },
   { key: 'dashboard', label: 'Tüm Talepler', path: '/' },
-  { key: 'admin/request-management', label: 'Talep Yönetimi', path: '/admin/request-management' },
   { key: 'organization', label: 'Organizasyon', path: '/organization' },
+  { key: 'secretariat', label: 'Sekreterya', path: '/secretariat' },
+  { key: 'attendance', label: 'Yoklama Listesi', path: '/attendance' },
+  { key: 'attendance-report', label: 'Yoklama Raporu', path: '/attendance-report' },
+  { key: 'admin/request-management', label: 'Talep Yönetimi', path: '/admin/request-management' },
   { key: 'admin/organization', label: 'Organizasyon Yönetimi', path: '/admin/organization', group: 'management' },
   { key: 'admin/users', label: 'Kullanıcılar', path: '/admin/users', group: 'management' },
   { key: 'admin/roles', label: 'Roller', path: '/admin/roles', group: 'management' }

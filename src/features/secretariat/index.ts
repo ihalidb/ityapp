@@ -1,0 +1,1 @@
+export { SecretariatPage } from './components/SecretariatPage'; 

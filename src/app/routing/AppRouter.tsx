@@ -10,6 +10,9 @@ import { OrganizationManagement } from '../../features/organization/components/O
 import { UserManagement } from '../../features/admin/components/UserManagement';
 import { RoleManagement } from '../../features/admin/components/RoleManagement';
 import { RequestManagement } from '../../features/admin/components/RequestManagement';
+import { SecretariatPage } from '../../features/secretariat/components/SecretariatPage';
+import { AttendancePage } from '../../features/attendance/components/AttendancePage';
+import { AttendanceReportPage } from '../../features/attendance/components/AttendanceReportPage';
 import { Layout } from '../layout/Layout';
 import { PAGE_DEFINITIONS, type PageKey } from '../../shared/types';
 
@@ -85,6 +88,30 @@ export const AppRouter: React.FC = () => {
           <AllowedPageRoute pageKey="organization">
             <Layout>
               <OrganizationPage />
+            </Layout>
+          </AllowedPageRoute>
+        } />
+        
+        <Route path="/secretariat" element={
+          <AllowedPageRoute pageKey="secretariat">
+            <Layout>
+              <SecretariatPage />
+            </Layout>
+          </AllowedPageRoute>
+        } />
+        
+        <Route path="/attendance" element={
+          <AllowedPageRoute pageKey="attendance">
+            <Layout>
+              <AttendancePage />
+            </Layout>
+          </AllowedPageRoute>
+        } />
+        
+        <Route path="/attendance-report" element={
+          <AllowedPageRoute pageKey="attendance-report">
+            <Layout>
+              <AttendanceReportPage />
             </Layout>
           </AllowedPageRoute>
         } />
